@@ -16,15 +16,20 @@ class DeadLetterMessageProcessor implements MessageProcessorInterface
      */
     private $queueName;
 
+    /**
+     * @var MessagePublisher
+     */
+    private $messagePublisher;
+
     public function __construct(string $path, string $queueName)
     {
         $this->path = $path;
         $this->queueName = $queueName;
+        $this->messagePublisher = new MessagePublisher(new DirectoryCreator(), $this->path);
     }
 
     public function processMessage(string $message): void
     {
-        $messagePublisher = new MessagePublisher($this->path);
-        $messagePublisher->publish($this->queueName, $message);
+        $this->messagePublisher->publish($this->queueName . '_dead_letter', $message);
     }
 }
